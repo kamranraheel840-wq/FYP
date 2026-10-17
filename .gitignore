@@ -1,0 +1,31 @@
+# Virtual environments
+.venv/
+.venv315/
+venv/
+
+# Python bytecode / caches
+__pycache__/
+*.py[cod]
+
+# Tooling caches
+.ruff_cache/
+
+# IDE / editor
+.idea/
+
+# PyInstaller build artifacts
+build/
+dist/
+
+# Runtime data: user media and backups stay out of version control.
+# Database files ARE tracked on purpose, so *.db is not ignored.
+media/
+data/*
+!data/*.db
+
+# Transient SQLite WAL/SHM side files (not databases) — safe to exclude
+*.db-wal
+*.db-shm
+
+# Partial downloads
+*.part

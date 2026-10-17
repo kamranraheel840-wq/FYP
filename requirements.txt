@@ -1,0 +1,16 @@
+# Application runtime
+customtkinter>=5.2
+cryptography>=42.0
+numpy>=1.24
+opencv-python>=4.8
+Pillow>=10.0
+pycountry>=24.6
+pypdf>=5.0
+reportlab>=4.0
+
+# Build the Windows executable with police_system.spec
+pyinstaller>=6.0
+
+# Optional encrypted SQLite backend; without it the app uses Python's sqlite3.
+# Install separately when a compatible SQLCipher wheel is available:
+# sqlcipher3-wheels>=0.5.4

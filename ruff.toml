@@ -1,0 +1,10 @@
+# Ruff configuration for CRMS FYP.
+#
+# Selection is intentionally limited to genuine defects: pyflakes issues (F)
+# such as unused imports/variables (F401/F841) and undefined names (F821), plus
+# syntax-level errors (E9). The codebase deliberately uses dense one-liners,
+# naive local datetimes and defensive bare-except blocks, so style-only rules
+# (E701/E702/E703, DTZ, BLE, S, EXE, RUF, import sorting I) are excluded to
+# avoid noise and to keep auto-fixing from reformatting working code.
+[lint]
+select = ["F", "E9"]
