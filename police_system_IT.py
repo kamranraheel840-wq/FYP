@@ -31,6 +31,7 @@ from config import (
     MEDIA_DIR,
     ORGANIZATION,
     POLICE_DB as AUTH_DB_PATH,
+    RESOURCE_DIR,
     ensure_directories,
     is_under_dir,
 )
@@ -2473,6 +2474,25 @@ def national_id_validation_error(nationality: str, identifier: str) -> str | Non
     return None
 
 
+def _apply_window_icon(window) -> None:
+    """Set the window icon from the bundled assets, best effort."""
+    ico = os.path.join(RESOURCE_DIR, "assets", "icon.ico")
+    png = os.path.join(RESOURCE_DIR, "assets", "icon.png")
+    try:
+        if os.path.isfile(ico):
+            window.iconbitmap(ico)
+            return
+    except Exception:
+        pass
+    try:
+        if os.path.isfile(png):
+            image = tk.PhotoImage(file=png)
+            window.iconphoto(True, image)
+            window._icon_image = image
+    except Exception:
+        pass
+
+
 def _open_login(notice: str = ""):
     try:
         init_enhanced_db()
@@ -2483,6 +2503,7 @@ def _open_login(notice: str = ""):
     while True:
         root = tk.Tk()
         root.withdraw()
+        _apply_window_icon(root)
         session = {"relaunch": False, "notice": ""}
         LoginWindow(root, notice, session)
         root.mainloop()
@@ -2501,6 +2522,7 @@ class LoginWindow:
         self.session = session if session is not None else {"relaunch": False, "notice": ""}
         self.win = ctk.CTkToplevel(root)
         self.win.title("Secure Officer Login")
+        _apply_window_icon(self.win)
         self.win.geometry("520x650")
         self.win.minsize(460, 580)
         self.win.resizable(True, True)
@@ -2619,10 +2641,7 @@ class LoginWindow:
         register_success(username)
         self.win.destroy()
         self.root.deiconify()
-        try:
-            self.root.iconbitmap("police.ico")
-        except Exception:
-            pass
+        _apply_window_icon(self.root)
         EnhancedCriminalDatabaseApp(
             self.root,
             {

@@ -1,0 +1,75 @@
+name: Windows build and release
+
+# Every push to main rebuilds the executable, tags the commit and publishes a release.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+# A release must never be cancelled halfway through.
+concurrency:
+  group: release-main
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v7
+
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.14"
+          cache: pip
+          cache-dependency-path: requirements.txt
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt
+
+      - name: Compile check
+        run: python -m py_compile config.py face_engine.py police_system_IT.py security.py secure_storage.py theme.py ui.py
+
+      - name: Read the application version
+        shell: pwsh
+        run: |
+          $version = python -c "import config; print(config.APP_VERSION)"
+          if (-not $version) { throw "Could not read APP_VERSION from config.py" }
+          "APP_VERSION=$version" | Out-File -FilePath $env:GITHUB_ENV -Append
+          "Application version: $version"
+
+      - name: Build the executable
+        run: python -m PyInstaller --clean --noconfirm police_system.spec
+
+      - name: Verify the build output
+        shell: pwsh
+        run: |
+          $exe = "dist/CriminalRecordManagementSystem.exe"
+          if (-not (Test-Path $exe)) { throw "Missing build output: $exe" }
+          "Built {0} ({1:N1} MB)" -f $exe, ((Get-Item $exe).Length / 1MB)
+
+      # Creating the release also creates and pushes the tag for this commit.
+      # GITHUB_TOKEN pushes do not trigger another workflow run, so there is no loop.
+      - name: Create the tag and release
+        uses: softprops/action-gh-release@v3
+        with:
+          tag_name: v${{ env.APP_VERSION }}.${{ github.run_number }}
+          name: Criminal Record Management System v${{ env.APP_VERSION }}.${{ github.run_number }}
+          target_commitish: ${{ github.sha }}
+          fail_on_unmatched_files: true
+          files: dist/CriminalRecordManagementSystem.exe
+          body: |
+            Windows build from commit ${{ github.sha }} on `${{ github.ref_name }}`.
+
+            - One-file executable. The face recognition models and every asset are bundled, so nothing else needs to be installed.
+            - Runs without a console window; the app icon is embedded.
+            - Saved data (databases, photos, backups) is created under `%LOCALAPPDATA%\CriminalRecordManagementSystem` on first launch.
+            - Demo sign-in: `admin` / `admin123` or `officer` / `officer123`. The app forces a password change on the first sign-in.
+
+            Download the `.exe` below and run it.

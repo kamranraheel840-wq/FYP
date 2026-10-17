@@ -18,6 +18,14 @@ for filename in (
     if os.path.isfile(model_path):
         datas.append((model_path, "models"))
 
+# Application icon, used for the EXE and for window title bars.
+for filename in ("icon.ico", "icon.png"):
+    asset_path = os.path.join(root, "assets", filename)
+    if os.path.isfile(asset_path):
+        datas.append((asset_path, "assets"))
+
+icon_path = os.path.join(root, "assets", "icon.ico")
+
 a = Analysis(
     [os.path.join(root, "police_system_IT.py")],
     pathex=[root],
@@ -45,4 +53,5 @@ exe = EXE(
     upx=True,
     console=False,
     disable_windowed_traceback=False,
+    icon=icon_path if os.path.isfile(icon_path) else None,
 )

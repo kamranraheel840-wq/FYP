@@ -386,7 +386,9 @@ python -m pip install -r requirements.txt
 python -m PyInstaller --clean --noconfirm police_system.spec
 ```
 
-Output: `dist\CriminalRecordManagementSystem.exe`. The executable has no console window. Databases, photos and backups are not bundled; they are created in the user's LocalAppData profile on first launch, and the bundled models are copied there as well. To give the app to another user, copy the executable and let it build its own data directory.
+Output: `dist\CriminalRecordManagementSystem.exe`. The executable is single-file and has no console window; the application icon and the face models are embedded. Databases, photos and backups are not bundled; they are created in the user's LocalAppData profile on first launch, and the bundled models are copied there as well. To give the app to another user, copy the executable and let it build its own data directory.
+
+The repository also builds this executable automatically. `.github/workflows/windows-release.yml` runs on every push to `main`: it installs the requirements on a Windows runner, compiles the sources as a quick check, builds the spec, then creates a tag (`v<version>.<build number>`, for example `v3.1.42`) and publishes a GitHub release with the EXE attached. The tag is created from `config.APP_VERSION`, so bumping the version in `config.py` changes the tag prefix on the next build.
 
 ## 12. Testing and verification
 
@@ -492,6 +494,12 @@ FYP/
 ├── ruff.toml                   linter configuration (pyflakes + syntax rules)
 ├── README.md
 ├── DOCUMENTATION.md            this document
+├── .github/
+│   └── workflows/
+│       └── windows-release.yml builds the EXE, tags and releases on every push
+├── assets/
+│   ├── icon.ico                application icon (EXE, title bars)
+│   └── icon.png                icon used on non-Windows platforms
 ├── data/
 │   ├── criminals.db            encrypted records database (created/encrypted on first run)
 │   ├── police.db               encrypted auth database
